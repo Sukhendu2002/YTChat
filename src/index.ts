@@ -1,7 +1,10 @@
+#!/usr/bin/env node --no-warnings
+import dotenv from "dotenv";
+dotenv.config();
 import * as fs from "fs";
 import * as readline from "readline";
 import prompts from "prompts";
-import { processInput, LLMType } from "./llm";
+import { processInput, LLMType } from "./process";
 
 const CONFIG_FILE_PATH = "./config.json";
 

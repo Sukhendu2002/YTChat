@@ -23,7 +23,12 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.19.1",
     "@google-cloud/language": "^6.3.0",
-    "prompts": "^2.4.2"
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
+    "googleapis": "^134.0.0",
+    "prompts": "^2.4.2",
+    "userland": "^0.4.1"
   }
 }
