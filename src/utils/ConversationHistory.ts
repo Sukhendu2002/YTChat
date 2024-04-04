@@ -1,12 +1,12 @@
 import fs from "fs";
 
-type Conversation = {
+export type Conversation = {
   userInput: string;
   systemResponse: string;
   timestamp?: string;
 };
 
-class ConversationHistory {
+class ConversationHistoryCL {
   private filePath: string;
   constructor(filePath = "conversation-history.json") {
     this.filePath = filePath;
@@ -31,12 +31,9 @@ class ConversationHistory {
     );
   }
   async getConversationHistory() {
-    //get the lastest 2 conversation base on the timestamp
     const data = await fs.promises
       .readFile(this.filePath, "utf-8")
       .then((data) => JSON.parse(data));
-
-    //get the last 2 conversation
     const conversationHistory = data
       .filter((item: Conversation) => item.timestamp)
       .sort((a: Conversation, b: Conversation) => {
@@ -50,4 +47,4 @@ class ConversationHistory {
   }
 }
 
-export default ConversationHistory;
+export default ConversationHistoryCL

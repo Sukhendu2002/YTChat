@@ -1,54 +1,8 @@
 import { google } from "googleapis";
 import Anthropic from "@anthropic-ai/sdk";
 import { YoutubeTranscript } from "youtube-transcript";
-import fs from "fs";
-
-type Conversation = {
-  userInput: string;
-  systemResponse: string;
-  timestamp?: string;
-};
-
-class ConversationHistory {
-  private filePath: string;
-  constructor(filePath = "conversation-history.json") {
-    this.filePath = filePath;
-    fs.promises
-      .access(this.filePath)
-      .then(() => {
-        console.log("File exists");
-      })
-      .catch(() => {
-        console.log("File doesn't exist. Creating new file");
-        fs.promises.writeFile(this.filePath, "[]");
-      });
-  }
-
-  async saveConversation(conversation: Conversation) {
-    const data = await fs.promises.readFile(this.filePath, "utf-8");
-    const conversationHistory = JSON.parse(data);
-    conversationHistory.push(conversation);
-    await fs.promises.writeFile(
-      this.filePath,
-      JSON.stringify(conversationHistory, null, 2)
-    );
-  }
-  async getConversationHistory() {
-    const data = await fs.promises
-      .readFile(this.filePath, "utf-8")
-      .then((data) => JSON.parse(data));
-    const conversationHistory = data
-      .filter((item: Conversation) => item.timestamp)
-      .sort((a: Conversation, b: Conversation) => {
-        return (
-          new Date(b.timestamp!).getTime() - new Date(a.timestamp!).getTime()
-        );
-      })
-      .slice(0, 2);
-
-    return conversationHistory;
-  }
-}
+import ConversationHistoryCL from "../utils/ConversationHistory";
+import { Conversation } from "../utils/ConversationHistory";
 
 class AnthropicCL {
   private anthropic: Anthropic;
@@ -65,99 +19,9 @@ class AnthropicCL {
       auth: youtubeApiKey,
     });
 
-    this.conversation = new ConversationHistory();
+    this.conversation = new ConversationHistoryCL();
   }
 
-  // async analyzeInput(input: string): Promise<string> {
-  //   try {
-  //     let conversationHistory =
-  //       await this.conversation.getConversationHistory();
-  //     console.log(conversationHistory);
-  //     const systemMessage = `You are a chatbot. From the given text, tell me what the user wants to know. is it a search  query or a request to search for videos or request to search for video details or request for vedio summary or something from the previous conversation.
-
-  //     Input: ${input}
-  //     Priveous conversation: ${this.conversation.getConversationHistory()}
-
-  //       please provide the answer in the following format:
-  //       search query: <query>
-  //       search videos: <query>
-  //       search video details: <videoId>
-  //       video summary: <videoId>
-  //       `;
-
-  //     const msg = await this.anthropic.messages.create({
-  //       model: "claude-3-opus-20240229",
-  //       max_tokens: 1024,
-  //       messages: [{ role: "user", content: systemMessage }],
-  //     });
-
-  //     const response = msg.content[0].text;
-  //     const [action, value] = response.split(":").map((item) => item.trim());
-
-  //     console.log(action, value);
-  //     if (action === "search query") {
-  //       const query = await this.extractSearchQuery(value);
-  //       const searchResults = await this.searchVideos(query);
-  //       this.conversation.saveConversation({
-  //         userInput: input,
-  //         systemResponse: searchResults,
-  //         timestamp: new Date().toISOString(),
-  //       });
-  //       return searchResults;
-  //     } else if (action === "search videos") {
-  //       const searchResults = await this.searchVideos(value);
-  //       this.conversation.saveConversation({
-  //         userInput: input,
-  //         systemResponse: searchResults,
-  //         timestamp: new Date().toISOString(),
-  //       });
-  //       return searchResults;
-  //     } else if (action === "search video details") {
-  //       const videoMetadata = await this.fetchVideoMetadata(value);
-  //       const meta = await this.anthropic.messages.create({
-  //         model: "claude-3-opus-20240229",
-  //         max_tokens: 512,
-  //         messages: [
-  //           {
-  //             role: "user",
-  //             content: `${input} Videometadata: ${JSON.stringify(
-  //               videoMetadata
-  //             )}`,
-  //           },
-  //         ],
-  //       });
-  //       this.conversation.saveConversation({
-  //         userInput: input,
-  //         systemResponse: meta.content[0].text,
-  //         timestamp: new Date().toISOString(),
-  //       });
-  //       return meta.content[0].text;
-  //     } else if (action === "video summary") {
-  //       const words = await this.fetchVideoTranscript(value);
-  //       const summary = await this.anthropic.messages.create({
-  //         model: "claude-3-opus-20240229",
-  //         max_tokens: 512,
-  //         messages: [
-  //           {
-  //             role: "user",
-  //             content: `Summarize the following text: "${words.join(" ")}"`,
-  //           },
-  //         ],
-  //       });
-  //       this.conversation.saveConversation({
-  //         userInput: input,
-  //         systemResponse: summary.content[0].text,
-  //         timestamp: new Date().toISOString(),
-  //       });
-  //       return summary.content[0].text;
-  //     } else {
-  //       return "Invalid action. Please try again.";
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //     return "Error processing input.";
-  //   }
-  // }
   async analyzeInput(input: string): Promise<string> {
     try {
       let conversationHistory =
