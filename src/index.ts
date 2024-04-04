@@ -1,19 +1,16 @@
-#!/usr/bin/env node --no-warnings
+#!/usr/bin/env node --no-deprecation
+
 import dotenv from "dotenv";
 dotenv.config();
 import * as fs from "fs";
 import * as readline from "readline";
 import prompts from "prompts";
 import { processInput, LLMType } from "./process";
+import { createColors } from "colorette";
 
 const CONFIG_FILE_PATH = "./config.json";
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-console.log("Welcome to YouTube Chatbot CLI!");
+const colors = createColors({ useColor: true });
 
 if (fs.existsSync(CONFIG_FILE_PATH)) {
   const configData = JSON.parse(fs.readFileSync(CONFIG_FILE_PATH, "utf-8"));
@@ -61,34 +58,53 @@ function saveConfig(llmType: LLMType, apiKey: string) {
 }
 
 function startProgram(llmType: LLMType, apiKey: string) {
-  console.log('Type "/bye" to exit.\n');
-  console.log('Type "/reset" to reset configuration.\n');
+  console.log(colors.green("Welcome to YouTube Chatbot CLI!"));
+  console.log(colors.yellow('Type "/bye" to exit.'));
+  console.log(colors.yellow('Type "/reset" to reset configuration.'));
+  console.log(colors.cyan("\nStart chatting below:\n"));
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: "> ",
+  });
+
+  rl.prompt();
 
   rl.on("line", async (input: string) => {
     if (input.trim() === "/bye") {
-      console.log("Goodbye! Exiting...");
+      console.log(colors.magenta("Goodbye! Exiting..."));
       rl.close();
       process.exit(0);
     }
 
     if (input.trim() === "/reset") {
-      console.log("Resetting configuration...");
+      console.log(colors.red("Resetting configuration..."));
       fs.unlinkSync(CONFIG_FILE_PATH);
-      console.log("Configuration reset. Please restart the program.");
+      console.log(
+        colors.red("Configuration reset. Please restart the program.")
+      );
       rl.close();
       process.exit(0);
     }
 
     if (input.trim() === "") {
-      console.log("Please enter a message.");
+      console.log(colors.yellow("Please enter a message."));
+      rl.prompt();
       return;
     }
 
     try {
       const response = await processInput(input, llmType, apiKey);
-      console.log("Bot:", response);
+      console.log(colors.blue("User:"), input);
+      console.log(colors.green("Bot:"));
+      console.log(response);
+      console.log("");
+      rl.prompt();
     } catch (error) {
-      console.error("Error processing input:", error);
+      console.error(colors.red("Error processing input:"), error);
+      console.log("");
+      rl.prompt();
     }
   });
 }

@@ -31,7 +31,6 @@ lib-cov
 config.json
 # Coverage directory used by tools like istanbul
 config.json
-conversation-history.json
 coverage
 *.lcov
 

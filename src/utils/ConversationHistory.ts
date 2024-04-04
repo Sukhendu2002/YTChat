@@ -12,9 +12,7 @@ class ConversationHistoryCL {
     this.filePath = filePath;
     fs.promises
       .access(this.filePath)
-      .then(() => {
-        console.log("File exists");
-      })
+      .then(() => {})
       .catch(() => {
         console.log("File doesn't exist. Creating new file");
         fs.promises.writeFile(this.filePath, "[]");
@@ -47,4 +45,4 @@ class ConversationHistoryCL {
   }
 }
 
-export default ConversationHistoryCL
+export default ConversationHistoryCL;
