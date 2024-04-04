@@ -29,8 +29,8 @@ async function promptUserForSetup() {
       name: "llmType",
       message: "Choose LLM provider",
       choices: [
-        { title: "OpenAI", value: "openai" },
         { title: "Anthropic", value: "anthropic" },
+        { title: "OpenAI(Under Work)", value: "openai" },
       ],
       initial: 0,
     },

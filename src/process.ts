@@ -1,4 +1,5 @@
 import AnthropicCL from "./llm/anthropic";
+import GPTCL from "./llm/openai";
 
 export type LLMType = "openai" | "anthropic";
 
@@ -12,7 +13,9 @@ export async function processInput(
     const inputLines = input.trim().split("\n");
     const command = inputLines[0].toLowerCase();
     if (llmType === "openai") {
-      response = "Response from OpenAI API";
+      const openai = new GPTCL(apiKey, process.env.YOUTUBE_API_KEY);
+      const res = await openai.analyzeInput(input);
+      response = res;
     } else if (llmType === "anthropic") {
       const anthropic = new AnthropicCL(apiKey, process.env.YOUTUBE_API_KEY);
       const res = await anthropic.analyzeInput(input);
