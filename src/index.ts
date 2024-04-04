@@ -7,6 +7,9 @@ import * as readline from "readline";
 import prompts from "prompts";
 import { processInput, LLMType } from "./process";
 import { createColors } from "colorette";
+import { createSpinner } from "nanospinner";
+
+const spinner = createSpinner("Bot is thinking...");
 
 const CONFIG_FILE_PATH = "./config.json";
 
@@ -95,8 +98,13 @@ function startProgram(llmType: LLMType, apiKey: string) {
     }
 
     try {
+      spinner.start();
       const response = await processInput(input, llmType, apiKey);
-      console.log(colors.blue("User:"), input);
+      spinner.success({
+        text: input,
+        mark: "✔",
+      });
+      console.log("");
       console.log(colors.green("Bot:"));
       console.log(response);
       console.log("");
@@ -104,6 +112,7 @@ function startProgram(llmType: LLMType, apiKey: string) {
     } catch (error) {
       console.error(colors.red("Error processing input:"), error);
       console.log("");
+      spinner.stop();
       rl.prompt();
     }
   });

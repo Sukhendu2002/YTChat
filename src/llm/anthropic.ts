@@ -51,7 +51,7 @@ class AnthropicCL {
       const response = msg.content[0].text;
       const [action, value] = response.split(":").map((item) => item.trim());
 
-      console.log(action, value);
+      // console.log(action, value);
       if (action === "search query") {
         const query = await this.extractSearchQuery(value);
         const searchResults = await this.searchVideos(query);
